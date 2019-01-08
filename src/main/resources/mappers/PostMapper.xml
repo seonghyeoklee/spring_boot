@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.boot1.dao.PostDAO">
+
+    <resultMap id="postResultMap" type="Post">
+        <id column="idx"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="state" property="state"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="like_count" property="likeCount"/>
+        <association property="author" column="user_idx" javaType="User">
+            <id column="idx" property="idx"/>
+            <id column="name" property="name"/>
+        </association>
+    </resultMap>
+
+    <select id="selectPostList" resultMap="postResultMap">
+        select
+          p.idx,
+          p.title,
+          p.content,
+          p.state,
+          p.created_at,
+          p.updated_at,
+          pl.like_count,
+          p.author_idx,
+          u.name
+        from post p
+        join user u on p.author_idx = u.idx
+        left outer join (
+          select post_idx, count(*) as like_count
+          from post_like
+          group by post_idx
+        ) pl on p.idx = pl.post_idx
+        order by p.created_at desc
+        limit #{offset}, #{count}
+    </select>
+
+    <insert id="insertPost" useGeneratedKeys="true" keyProperty="idx">
+      insert into `post`(`author_idx`, `title`, `content`)
+      values(#{author.idx}, #{title}, #{content})
+    </insert>
+
+    <delete id="deletePost">
+        delete from post
+        where idx = #{idx}
+        and author_idx = #{user.idx}
+    </delete>
+
+    <insert id="insertPostLike">
+        insert into `post_like`(`post_idx`, `user_idx`)
+        values(#{postIdx}, #{userIdx})
+    </insert>
+
+    <delete id="deletePostLike">
+        delete from `post_like`
+        where `post_idx` = #{postIdx}
+        and `user_idx`= #{userIdx}
+    </delete>
+
+</mapper>
