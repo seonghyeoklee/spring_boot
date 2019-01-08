@@ -12,9 +12,15 @@
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
         <result column="like_count" property="likeCount"/>
+
         <association property="author" column="user_idx" javaType="User">
             <id column="idx" property="idx"/>
             <id column="name" property="name"/>
+        </association>
+
+        <association property="postLike" javaType="com.spring.domain.PostLike">
+            <result property="userIdx" column="user_idx"/>
+            <result property="likeCount" column="like_count"/>
         </association>
     </resultMap>
 
@@ -44,6 +50,15 @@
       insert into `post`(`author_idx`, `title`, `content`)
       values(#{author.idx}, #{title}, #{content})
     </insert>
+
+    <update id="updatePost">
+		UPDATE post SET
+			title = #{title},
+			content = #{content},
+			state = #{state},
+			updated_at = now()
+		WHERE idx = #{idx}
+	</update>
 
     <delete id="deletePost">
         delete from post

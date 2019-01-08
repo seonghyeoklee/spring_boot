@@ -44,36 +44,94 @@ public class PostController {
         log.info("title : " + post.getTitle());
         log.info("content : " + post.getContent());
 
+        boolean succ = false;
         int insertCount = postService.insertPost(post);
 
         log.info("insertCount : " + insertCount);
         log.info("insertIdx : " + post.getIdx());
 
-        return null;
+        if(insertCount == 1) {
+            succ = true;
+        }
+
+        Map<String, Object> result = new LinkedTreeMap<>();
+        result.put("succ", succ);
+        result.put("insertCount", insertCount);
+
+        return result;
     }
 
     @GetMapping("/{idx}")
-    public Object readGET(){
+    public Object readGET(@PathVariable int idx){
 
-        return null;
+        log.info("idx : " + idx);
+
+        boolean succ = false;
+        Post post = postService.selectPost(idx);
+
+        if(post != null) {
+            succ = true;
+        }
+
+        Map<String, Object> result = new LinkedTreeMap<>();
+        result.put("succ", succ);
+        result.put("post", post);
+
+        return result;
     }
 
     @PutMapping("/{idx}")
-    public Object updatePUT(){
+    public Object updatePUT(@PathVariable int idx, Post post){
 
-        return null;
+        log.info("idx : " + idx);
+
+        boolean succ = false;
+
+        post.setIdx(idx);
+        int updateCount = postService.updatePost(post);
+
+        if(updateCount == 1) {
+            succ = true;
+        }
+
+        Map<String, Object> result = new LinkedTreeMap<>();
+        result.put("succ", succ);
+        result.put("post", updateCount);
+
+        return result;
     }
 
     @DeleteMapping("/{idx}")
-    public Object deleteDELETE(){
+    public Object deleteDELETE(@PathVariable int idx){
 
-        return null;
+        log.info("idx : " + idx);
+
+        boolean succ = false;
+        int deleteCount = postService.deletePost(idx);
+
+        if(deleteCount == 1) {
+            succ = true;
+        }
+
+        Map<String, Object> result = new LinkedTreeMap<>();
+        result.put("succ", succ);
+        result.put("deleteCount", deleteCount);
+
+        return result;
     }
 
     @PostMapping("/{idx}/like")
-    public Object likePOST(){
+    public Object likePOST(@PathVariable int idx){
 
-        return null;
+        log.info("idx : " + idx);
+
+        int postLikeCount = postService.selectPostLike(idx);
+
+        Map<String, Object> result = new LinkedTreeMap<>();
+        result.put("succ", true);
+        result.put("postLikeCount", postLikeCount);
+
+        return result;
     }
 
     @PostMapping("/{idx}/unlike")

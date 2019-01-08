@@ -16,13 +16,36 @@ public class PostServiceImpl implements PostService{
     @Override
     public List<Post> selectPostList(Map<String, Object> map) {
 
-        List<Post> list = postDAO.selectPostList(map);
-        return list;
+        return postDAO.selectPostList(map);
     }
 
     @Override
     public int insertPost(Post post) {
 
         return postDAO.insertPost(post);
+    }
+
+    @Override
+    public Post selectPost(int idx) {
+
+        return postDAO.selectPost(idx);
+    }
+
+    @Override
+    public int updatePost(Post post) {
+
+        return postDAO.updatePost(post);
+    }
+
+    @Override
+    public int deletePost(int idx) {
+
+        return postDAO.deletePost(idx);
+    }
+
+    @Override
+    public int selectPostLike(int idx) {
+
+        return postDAO.selectPostLike(idx);
     }
 }
