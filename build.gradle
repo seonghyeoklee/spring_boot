@@ -30,11 +30,16 @@ dependencies {
     runtimeOnly('mysql:mysql-connector-java')
     compileOnly('org.projectlombok:lombok')
 
+    implementation('org.springframework.security:spring-security-crypto')
+
     compile 'com.google.code.gson:gson:2.8.5'
 
     compile 'com.squareup.retrofit2:retrofit:2.5.0'
     compile 'com.squareup.retrofit2:converter-gson:2.5.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.12.1'
+
+    implementation 'javax.mail:javax.mail-api:1.6.0'
+    implementation 'com.sun.mail:javax.mail:1.6.0'
     
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

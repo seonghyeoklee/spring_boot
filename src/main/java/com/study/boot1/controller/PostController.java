@@ -3,6 +3,8 @@ package com.study.boot1.controller;
 import com.google.gson.internal.LinkedTreeMap;
 import com.study.boot1.common.Constant;
 import com.study.boot1.model.Post;
+import com.study.boot1.model.User;
+import com.study.boot1.resolver.SessionLogin;
 import com.study.boot1.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,118 +27,53 @@ public class PostController {
             @RequestParam(value="offset", required = false) Integer offset,
             @RequestParam(value="count", required = false) Integer count){
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("offset", offset);
-        params.put("count", count);
+        if(offset ==null){
+            offset = Constant.POST_LIST_DEFAULT_OFFSET;
+        }
 
-        List<Post> list = postService.selectPostList(params);
+        if(count ==null){
+            count = Constant.POST_LIST_DEFAULT_COUNT;
+        }
 
-        Map<String, Object> result = new LinkedTreeMap<>();
-        result.put("list", list);
-
-        return result;
+        return postService.getPostList(offset, count);
     }
 
     @PostMapping("")
-    public Object createPOST(Post post){
+    public Object createPOST(@SessionLogin Integer userIdx, @RequestBody Post post){
+        User author = new User();
+        author.setIdx(userIdx);
+        post.setAuthor(author);
 
-        log.info("author_idx : " + post.getAuthor().getIdx());
-        log.info("title : " + post.getTitle());
-        log.info("content : " + post.getContent());
-
-        boolean succ = false;
-        int insertCount = postService.insertPost(post);
-
-        log.info("insertCount : " + insertCount);
-        log.info("insertIdx : " + post.getIdx());
-
-        if(insertCount == 1) {
-            succ = true;
-        }
-
-        Map<String, Object> result = new LinkedTreeMap<>();
-        result.put("succ", succ);
-        result.put("insertCount", insertCount);
-
-        return result;
+        return postService.createPost(post);
     }
 
     @GetMapping("/{idx}")
-    public Object readGET(@PathVariable int idx){
+    public Object readGET(@PathVariable("idx") Integer postIdx){
 
-        log.info("idx : " + idx);
-
-        boolean succ = false;
-        Post post = postService.selectPost(idx);
-
-        if(post != null) {
-            succ = true;
-        }
-
-        Map<String, Object> result = new LinkedTreeMap<>();
-        result.put("succ", succ);
-        result.put("post", post);
-
-        return result;
+        return null;
     }
 
     @PutMapping("/{idx}")
-    public Object updatePUT(@PathVariable int idx, Post post){
+    public Object updatePUT(@SessionLogin Integer userIdx, @PathVariable("idx") Integer postIdx, @RequestBody Post post){
 
-        log.info("idx : " + idx);
-
-        boolean succ = false;
-
-        post.setIdx(idx);
-        int updateCount = postService.updatePost(post);
-
-        if(updateCount == 1) {
-            succ = true;
-        }
-
-        Map<String, Object> result = new LinkedTreeMap<>();
-        result.put("succ", succ);
-        result.put("post", updateCount);
-
-        return result;
+        return postService.updatePost(post);
     }
 
     @DeleteMapping("/{idx}")
-    public Object deleteDELETE(@PathVariable int idx){
+    public Object deleteDELETE( @SessionLogin Integer userIdx, @PathVariable("idx") Integer postIdx ) {
 
-        log.info("idx : " + idx);
-
-        boolean succ = false;
-        int deleteCount = postService.deletePost(idx);
-
-        if(deleteCount == 1) {
-            succ = true;
-        }
-
-        Map<String, Object> result = new LinkedTreeMap<>();
-        result.put("succ", succ);
-        result.put("deleteCount", deleteCount);
-
-        return result;
+        return postService.deletePost(userIdx, postIdx);
     }
 
     @PostMapping("/{idx}/like")
-    public Object likePOST(@PathVariable int idx){
+    public Object likePOST( @SessionLogin Integer userIdx, @PathVariable("idx") Integer postIdx ){
 
-        log.info("idx : " + idx);
-
-        int postLikeCount = postService.selectPostLike(idx);
-
-        Map<String, Object> result = new LinkedTreeMap<>();
-        result.put("succ", true);
-        result.put("postLikeCount", postLikeCount);
-
-        return result;
+        return postService.likePost(userIdx, postIdx);
     }
 
     @PostMapping("/{idx}/unlike")
-    public Object unlikePOST(){
+    public Object unlikePOST( @SessionLogin Integer userIdx, @PathVariable("idx") Integer postIdx ){
 
-        return null;
+        return postService.unlikePost(userIdx, postIdx);
     }
 }

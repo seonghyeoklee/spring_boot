@@ -1,7 +1,7 @@
 package com.study.boot1;
 
 import com.google.gson.Gson;
-import com.study.boot1.rest.KakaoAPI;
+import com.study.boot1.rest.KakaoUserInfoAPI;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,8 +12,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitConfig {
 
     @Bean
-    public KakaoAPI getKakaoAPI() {
-        return getRetrofit(KakaoAPI.BASE_URL).create(KakaoAPI.class);
+    public KakaoUserInfoAPI getKakaoAPI() {
+        return getRetrofit(KakaoUserInfoAPI.BASE_URL).create(KakaoUserInfoAPI.class);
     }
 
     private Retrofit getRetrofit(String BASE_URL) {

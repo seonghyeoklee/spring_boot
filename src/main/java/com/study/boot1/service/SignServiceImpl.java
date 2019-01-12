@@ -1,19 +1,16 @@
 package com.study.boot1.service;
 
+import com.study.boot1.common.AccountType;
 import com.study.boot1.common.Constant;
 import com.study.boot1.common.ErrorCode;
 import com.study.boot1.dao.UserAuthDAO;
 import com.study.boot1.dao.UserDAO;
 import com.study.boot1.exception.BadRequestException;
-import com.study.boot1.model.KakaoResultJson;
-import com.study.boot1.model.User;
-import com.study.boot1.model.UserAuth;
-import com.study.boot1.rest.KakaoAPI;
+import com.study.boot1.model.*;
+import com.study.boot1.rest.KakaoUserInfoAPI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.rmi.server.ServerCloneException;
 
 @Service
 public class SignServiceImpl implements SignService{
@@ -24,28 +21,36 @@ public class SignServiceImpl implements SignService{
     UserAuthDAO userAuthDAO;
 
     @Autowired
-    KakaoAPI kakaoAPI;
+    KakaoUserInfoAPI kakaoAPI;
 
     @Transactional
     @Override
-    public User in(UserAuth userAuth) {
+    public User in(UserSignParam param) {
 
-        switch (userAuth.getType()){
-            case Constant.ACCOUNT_TYPE_EMAIL:
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACOUNT_TYPE);
-            case Constant.ACCOUNT_TYPE_GOOGLE:
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACOUNT_TYPE);
-            case Constant.ACCOUNT_TYPE_KAKAO:
+        AccountType accountType;
 
-                UserAuth auth = userAuthDAO.selectUserAuth(userAuth);
+        try{
+            accountType =  AccountType.get(param.getType()).get();
+        }catch (Exception e) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+        }
+
+        switch (accountType){
+            case EMAIL:
+                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+            case GOOGLE:
+                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+            case KAKAO:
+
+                UserAuth auth = userAuthDAO.selectUserAuth(param);
 
                 if(auth != null)
                     return auth.getUser();
 
-                User user = up(userAuth);
+                return up(param);
 
-            case Constant.ACCOUNT_TYPE_FACEBOOK:    //과제
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACOUNT_TYPE);
+            case FACEBOOK:
+                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
             default:
                 break;
         }
@@ -55,62 +60,67 @@ public class SignServiceImpl implements SignService{
 
     @Transactional
     @Override
-    public User up(UserAuth userAuth) {
-        switch (userAuth.getType()){
-            case Constant.ACCOUNT_TYPE_EMAIL:
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACOUNT_TYPE);
-            case Constant.ACCOUNT_TYPE_GOOGLE:
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACOUNT_TYPE);
-            case Constant.ACCOUNT_TYPE_KAKAO:
+    public User up(UserSignParam param) {
+        AccountType accountType;
 
-                String accessToken = userAuth.getCredential();
-                KakaoResultJson kakaoResultJson = getKakaoUser(accessToken);
+        try{
+            accountType =  AccountType.get(param.getType()).get();
+        }catch (Exception e) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+        }
 
-                if(kakaoResultJson == null){
-                    throw new BadRequestException(0, "kakao fail"); //과제
-                }
+        switch ( accountType ) {
+            case EMAIL:
+                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+            case GOOGLE:
+                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+            case KAKAO:
 
-                String kakaId = "" + kakaoResultJson.getId();
-                String KakaoNickName = kakaoResultJson.getProperties().getNickname();
+                String accessToken = param.getIdentification();
+                KakaoUserInfo kakaoResultJson = getKakaoUserInfo(accessToken);
+                if( kakaoResultJson == null )
+                    throw new BadRequestException(0, "kakao fail");
 
-                UserAuth auth = new UserAuth();
-                auth.setType(Constant.ACCOUNT_TYPE_KAKAO);
-                auth.setIdentification(kakaId);
+                String kakaoId = ""+kakaoResultJson.getId();
 
-                if(userAuthDAO.selectUserAuth(auth) != null)
+                UserSignParam queryParam = new UserSignParam();
+                queryParam.setType(AccountType.KAKAO.intValue());
+                queryParam.setIdentification(kakaoId);
+
+                if( userAuthDAO.selectUserAuth(queryParam) != null )
                     throw new BadRequestException(0, "already exists");
 
+                String kakaoNickname = kakaoResultJson.getProperties().getNickname();
+
                 User user = new User();
-                user.setName(KakaoNickName);
+                user.setName(kakaoNickname);
                 userDAO.insertUser(user);
 
+                UserAuth auth = new UserAuth();
+                auth.setType(AccountType.KAKAO.intValue());
                 auth.setUserIdx(user.getIdx());
+
                 userAuthDAO.insertUserAuth(auth);
 
                 return user;
 
-            case Constant.ACCOUNT_TYPE_FACEBOOK:    //과제
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACOUNT_TYPE);
-            default:
-                break;
+            case FACEBOOK:
+                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
         }
 
+        throw new BadRequestException(ErrorCode.UNKNOWN);
+    }
+
+    private GoogleUserInfo getGoogleUserInfo(String accessToken) {
         return null;
     }
 
-    private KakaoResultJson getKakaoUser(String accessToken) throws RuntimeException {
+    private KakaoUserInfo getKakaoUserInfo(String accessToken) {
         try{
 
-            KakaoResultJson kakaoResultJson = kakaoAPI.userMeForToken("Bearer " + accessToken).execute().body();
-            //sendApi(access_token);
+            KakaoUserInfo kakaoResultJson = kakaoAPI.userMeForToken("Bearer " + accessToken).execute().body();
 
-            //email 값이 안넘어옴
-            /*if(kakaoResultJson.getKaccount_email() == null || !kakaoResultJson.isKaccount_email_verified())
-                return null;*/
-
-            //KakaoResultJson kakaoResultJson2 = checkIdByAdminKey(kakaoResultJson.id);
-            //밑의 코드가 위의 코드를 대체
-            KakaoResultJson kakaoResultJson2 = kakaoAPI.userMeForUserId("user_id", ""+kakaoResultJson.getId()).execute().body();
+            KakaoUserInfo kakaoResultJson2 = kakaoAPI.userMeForUserId("user_id", ""+kakaoResultJson.getId()).execute().body();
 
             if(kakaoResultJson2.getId() != kakaoResultJson.getId()) {
                 System.out.println("kakao id not equal");
@@ -124,5 +134,9 @@ public class SignServiceImpl implements SignService{
         }
 
         throw new RuntimeException();
+    }
+
+    private FacebookUserInfo getFacebookUserInfo(String accessToken) {
+        return null;
     }
 }

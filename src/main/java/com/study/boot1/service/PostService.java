@@ -2,20 +2,16 @@ package com.study.boot1.service;
 
 import com.study.boot1.model.Post;
 
-import java.util.List;
-import java.util.Map;
-
 public interface PostService {
+    Object getPostList(Integer offset, Integer count);
 
-    List<Post> selectPostList(Map<String, Object> map);
+    Object createPost(Post post);
 
-    int insertPost(Post post);
+    Object updatePost(Post post);
 
-    Post selectPost(int idx);
+    Object deletePost(long postIdx, int userIdx);
 
-    int updatePost(Post post);
+    Object likePost(int userIdx, long postIdx);
 
-    int deletePost(int idx);
-
-    int selectPostLike(int idx);
+    Object unlikePost(int userIdx, long postIdx);
 }

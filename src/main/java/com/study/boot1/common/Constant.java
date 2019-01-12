@@ -7,10 +7,17 @@ public class Constant {
 
     public final static String KAKAO_ADMIN_KEY = "9d494a36270630d16f3db17fb25ffa1c";
 
-    //Enum 으로 변경할 것
-    public final static int ACCOUNT_TYPE_EMAIL = 1;
-    public final static int ACCOUNT_TYPE_GOOGLE = 2;
-    public final static int ACCOUNT_TYPE_KAKAO = 3;
-    public final static int ACCOUNT_TYPE_FACEBOOK = 4;
+    //Post
+    public final static Integer POST_LIST_MAX_COUNT = 50;
+    public final static Integer POST_LIST_DEFAULT_OFFSET = 0;
+    public final static Integer POST_LIST_DEFAULT_COUNT = 20;
 
+    //Reply
+    public final static Integer REPLY_LIST_MAX_COUNT = 50;
+    public final static Integer REPLY_LIST_DEFAULT_OFFSET = 0;
+    public final static Integer REPLY_LIST_DEFAULT_COUNT = 20;
+
+    public final static String GOOGLE_API_CLIENT_ID = "";
+    public final static String GOOGLE_API_CLIENT_SECRET = "";
+    public final static String GOOGLE_API_REDIRECT_URI = "";
 }
