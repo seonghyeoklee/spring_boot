@@ -17,11 +17,6 @@
             <id column="idx" property="idx"/>
             <id column="name" property="name"/>
         </association>
-
-        <association property="postLike" javaType="com.spring.domain.PostLike">
-            <result property="userIdx" column="user_idx"/>
-            <result property="likeCount" column="like_count"/>
-        </association>
     </resultMap>
 
     <select id="selectPostList" resultMap="postResultMap">

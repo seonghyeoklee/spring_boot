@@ -77,11 +77,11 @@ public class SignServiceImpl implements SignService{
             case KAKAO:
 
                 String accessToken = param.getIdentification();
-                KakaoUserInfo kakaoResultJson = getKakaoUserInfo(accessToken);
-                if( kakaoResultJson == null )
+                KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(accessToken);
+                if( kakaoUserInfo == null )
                     throw new BadRequestException(0, "kakao fail");
 
-                String kakaoId = ""+kakaoResultJson.getId();
+                String kakaoId = ""+kakaoUserInfo.getId();
 
                 UserSignParam queryParam = new UserSignParam();
                 queryParam.setType(AccountType.KAKAO.intValue());
@@ -90,7 +90,7 @@ public class SignServiceImpl implements SignService{
                 if( userAuthDAO.selectUserAuth(queryParam) != null )
                     throw new BadRequestException(0, "already exists");
 
-                String kakaoNickname = kakaoResultJson.getProperties().getNickname();
+                String kakaoNickname = kakaoUserInfo.getProperties().getNickname();
 
                 User user = new User();
                 user.setName(kakaoNickname);

@@ -1,6 +1,5 @@
 package com.study.boot1.controller;
 
-import com.google.gson.internal.LinkedTreeMap;
 import com.study.boot1.common.Constant;
 import com.study.boot1.model.Post;
 import com.study.boot1.model.User;
@@ -9,10 +8,6 @@ import com.study.boot1.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(Constant.REST_API_VERSION + "/post")

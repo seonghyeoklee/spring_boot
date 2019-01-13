@@ -4,13 +4,11 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.study.boot1.common.Constant;
 import com.study.boot1.model.User;
 import com.study.boot1.model.UserAuth;
+import com.study.boot1.model.UserSignParam;
 import com.study.boot1.service.SignService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
@@ -28,23 +26,24 @@ public class SignContoller {
     @PostMapping("/in")
     public Object inPOST(
             HttpSession session,
-            int type,
-            String identification,
-            String credential
+            @RequestParam int type,
+            @RequestParam String identification,
+            @RequestParam(required = false) String credential
     ){
 
-        UserAuth userAuth = new UserAuth();
-        userAuth.setType(type);
-        userAuth.setIdentification(identification);
-        userAuth.setCredential(credential);
+        UserSignParam param = new UserSignParam();
+        param.setType(type);
+        param.setIdentification(identification);
+        param.setCredential(credential);
 
-        User user = signService.in(userAuth);
+        User user = signService.in(param);
 
         session.setAttribute(Constant.SESSION_KEY_LOGIN_USER_IDX, user.getIdx());
 
         Map<String, Object> map = new LinkedTreeMap<>();
         map.put("succ", true);
         map.put("msg", "SUCC");
+        map.put("user", user);
 
         return map;
     }
@@ -52,22 +51,21 @@ public class SignContoller {
     //이메일 패스워드 가입
     @PostMapping("/up")
     public Object upPOST(
-            int type,
-            String identification,
-            String credential
+            @RequestParam int type,
+            @RequestParam String identification,
+            @RequestParam(required = false) String credential
     ){
-        UserAuth userAuth = new UserAuth();
-        userAuth.setType(type);
-        userAuth.setIdentification(identification);
-        userAuth.setCredential(credential);
+       UserSignParam param = new UserSignParam();
+       param.setType(type);
+       param.setIdentification(identification);
+       param.setCredential(credential);
 
-        log.info(""+userAuth.getType());
-        log.info(userAuth.getCredential());
-        User user = signService.in(userAuth);
+        User user = signService.in(param);
 
         Map<String, Object> map = new LinkedTreeMap<>();
         map.put("succ", true);
         map.put("msg", "SUCC");
+        map.put("user", user);
 
         return map;
     }
