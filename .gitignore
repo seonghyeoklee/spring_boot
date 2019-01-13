@@ -25,4 +25,4 @@
 /nbdist/
 /.nb-gradle/
 
-**/Constant/**
+/com/study/boot1/common/Constant
