@@ -1,16 +1,20 @@
 package com.study.boot1.service;
 
+import com.google.gson.GsonBuilder;
 import com.study.boot1.common.AccountType;
-import com.study.boot1.common.Constant;
 import com.study.boot1.common.ErrorCode;
 import com.study.boot1.dao.UserAuthDAO;
 import com.study.boot1.dao.UserDAO;
 import com.study.boot1.exception.BadRequestException;
 import com.study.boot1.model.*;
+import com.study.boot1.rest.GoogleOAuthAPI;
+import com.study.boot1.rest.GoogleUserInfoAPI;
 import com.study.boot1.rest.KakaoUserInfoAPI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import retrofit2.Response;
+
 
 @Service
 public class SignServiceImpl implements SignService{
@@ -23,9 +27,15 @@ public class SignServiceImpl implements SignService{
     @Autowired
     KakaoUserInfoAPI kakaoAPI;
 
+    @Autowired
+    GoogleOAuthAPI googleOAuthAPI;
+
+    @Autowired
+    GoogleUserInfoAPI googleUserInfoAPI;
+
     @Transactional
     @Override
-    public User in(UserSignParam param) {
+    public User in(UserSignParam param) throws Exception{
 
         AccountType accountType;
 
@@ -60,7 +70,7 @@ public class SignServiceImpl implements SignService{
 
     @Transactional
     @Override
-    public User up(UserSignParam param) {
+    public User up(UserSignParam param) throws Exception{
         AccountType accountType;
 
         try{
@@ -71,9 +81,35 @@ public class SignServiceImpl implements SignService{
 
         switch ( accountType ) {
             case EMAIL:
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+                //email 발송해서 인증처리
+
+                return null;
             case GOOGLE:
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+                String credential = param.getCredential();
+
+                Response<GoogleOAuth> response = googleOAuthAPI.getToken(GoogleOAuthAPI.TOKEN_STATIC_FILED_MAP, credential).execute();
+                GoogleUserInfo googleUserInfo = googleUserInfoAPI.userInfo( "Bearer "+response.body().getAccessToken()).execute().body();
+
+                if(googleUserInfo == null)
+                    throw new NullPointerException();
+
+                System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(googleUserInfo));
+
+                User googleUser = new User();
+                googleUser.setName(googleUserInfo.getName());
+
+                userDAO.insertUser(googleUser);
+
+                UserAuth googleAuth = new UserAuth();
+                googleAuth.setUserIdx(googleUser.getIdx());
+                googleAuth.setIdentification(googleUserInfo.getSub());
+                googleAuth.setCredential(response.body().getAccessToken());
+                googleAuth.setType(AccountType.GOOGLE.intValue());
+
+                userAuthDAO.insertUserAuth(googleAuth);
+
+                return googleUser;
+
             case KAKAO:
 
                 String accessToken = param.getIdentification();
@@ -92,17 +128,18 @@ public class SignServiceImpl implements SignService{
 
                 String kakaoNickname = kakaoUserInfo.getProperties().getNickname();
 
-                User user = new User();
-                user.setName(kakaoNickname);
-                userDAO.insertUser(user);
+                User kakaoUser = new User();
+                kakaoUser.setName(kakaoNickname);
 
-                UserAuth auth = new UserAuth();
-                auth.setType(AccountType.KAKAO.intValue());
-                auth.setUserIdx(user.getIdx());
+                userDAO.insertUser(kakaoUser);
 
-                userAuthDAO.insertUserAuth(auth);
+                UserAuth kakaoAuth = new UserAuth();
+                kakaoAuth.setType(AccountType.KAKAO.intValue());
+                kakaoAuth.setUserIdx(kakaoUser.getIdx());
 
-                return user;
+                userAuthDAO.insertUserAuth(kakaoAuth);
+
+                return kakaoUser;
 
             case FACEBOOK:
                 throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);

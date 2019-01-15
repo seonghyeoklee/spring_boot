@@ -7,6 +7,6 @@ public interface SignService {
     public final static String SIGN_IN_USER_IDX_KEY = "SignInUserIdx";
     public final static String AUTOSIGN_KEY = "Autosign";
 
-    User in(UserSignParam param);
-    User up(UserSignParam param);
+    User in(UserSignParam param) throws Exception;
+    User up(UserSignParam param) throws Exception;
 }

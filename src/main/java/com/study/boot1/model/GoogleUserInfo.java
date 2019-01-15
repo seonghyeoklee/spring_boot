@@ -9,11 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GoogleUserInfo {
+    private String sub;
     private String name;
+    private String profile;
     private String picture;
     private String email;
 
     @SerializedName("email_verified")
     private Boolean emailVerified;
 
+    private String gender;
+    private String locale;
 }

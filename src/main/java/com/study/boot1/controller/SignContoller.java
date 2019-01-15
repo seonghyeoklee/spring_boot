@@ -29,7 +29,7 @@ public class SignContoller {
             @RequestParam int type,
             @RequestParam String identification,
             @RequestParam(required = false) String credential
-    ){
+    ) throws Exception{
 
         UserSignParam param = new UserSignParam();
         param.setType(type);
@@ -54,13 +54,13 @@ public class SignContoller {
             @RequestParam int type,
             @RequestParam String identification,
             @RequestParam(required = false) String credential
-    ){
+    ) throws Exception{
        UserSignParam param = new UserSignParam();
        param.setType(type);
        param.setIdentification(identification);
        param.setCredential(credential);
 
-        User user = signService.in(param);
+        User user = signService.up(param);
 
         Map<String, Object> map = new LinkedTreeMap<>();
         map.put("succ", true);
