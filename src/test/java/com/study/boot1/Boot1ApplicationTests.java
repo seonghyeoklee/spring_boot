@@ -30,6 +30,13 @@ public class Boot1ApplicationTests {
     @Autowired
     MessageSource messageSource;
 
+    @Autowired
+    GoogleOAuthAPI googleOAuthAPI;
+
+    @Autowired
+    GoogleUserInfoAPI googleUserInfoAPI;
+
+
     @Test
     public void getLocaleMessage() {
         String code = "test.a.b";
@@ -74,6 +81,17 @@ public class Boot1ApplicationTests {
 
         String decodeString = new String(Base64.getDecoder().decode(encodeString.getBytes()));
         System.out.println( decodeString );
+    }
+
+    @Test
+    public void googleAuthTest() throws Exception {
+        String code = "4/0gBfMuWg9Lhf9XU_GK9g_KaugfVtk7fnvOjkYWuNeP_wlnv5OfQbMzzfRpCMEX36E--Z-Jur7jSIGbRIxAuP9c0";
+
+        Response<GoogleOAuth> response = googleOAuthAPI.getToken(GoogleOAuthAPI.TOKEN_STATIC_FILED_MAP, code).execute();
+
+        GoogleUserInfo googleUserInfo = googleUserInfoAPI.userInfo(response.body().getTokenType()+" "+response.body().getAccessToken()).execute().body();
+
+        System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(googleUserInfo));
     }
 
 }

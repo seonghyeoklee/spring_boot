@@ -3,6 +3,7 @@ package com.study.boot1;
 import com.google.gson.Gson;
 import com.study.boot1.rest.FacebookUserInfoAPI;
 import com.study.boot1.rest.GoogleOAuthAPI;
+import com.study.boot1.rest.GoogleUserInfoAPI;
 import com.study.boot1.rest.KakaoUserInfoAPI;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,11 @@ public class RetrofitConfig {
     @Bean
     public GoogleOAuthAPI getGoogleOAuthAPI(){
         return getRetrofit(GoogleOAuthAPI.BASE_URL).create(GoogleOAuthAPI.class);
+    }
+
+    @Bean
+    public GoogleUserInfoAPI getGoogleUserInfoAPI(){
+        return getRetrofit(GoogleUserInfoAPI.BASE_URL).create(GoogleUserInfoAPI.class);
     }
 
     @Bean

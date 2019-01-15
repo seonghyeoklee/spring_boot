@@ -12,4 +12,10 @@ public class GoogleOAuth {
 
     @SerializedName("access_token")
     private String accessToken;
+
+    @SerializedName("refresh_token")
+    private String refreshToken;
+
+    @SerializedName("token_type")
+    private String tokenType;
 }
