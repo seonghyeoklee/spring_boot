@@ -9,8 +9,8 @@ import java.util.Properties;
 
 public class MailUtil {
     public boolean send(String fromName,String to,String title,String content){
+        //보내는사람 정보
         String host = "smtp.daum.net";
-        String domain = "devwon.com";
         String username = "";
         String password = "";
 
@@ -23,7 +23,7 @@ public class MailUtil {
             // 메일 관련
             msg.setSubject(title,"utf-8");
             msg.setContent(content, "text/html;charset=utf-8");
-            msg.setFrom(new InternetAddress(username+"@"+domain,fromName));
+            msg.setFrom(new InternetAddress(username,fromName));
             msg.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
             // 발송 처리
