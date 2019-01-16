@@ -7,13 +7,17 @@ import com.study.boot1.dao.UserAuthDAO;
 import com.study.boot1.dao.UserDAO;
 import com.study.boot1.exception.BadRequestException;
 import com.study.boot1.model.*;
+import com.study.boot1.rest.FacebookUserInfoAPI;
 import com.study.boot1.rest.GoogleOAuthAPI;
 import com.study.boot1.rest.GoogleUserInfoAPI;
 import com.study.boot1.rest.KakaoUserInfoAPI;
+import com.study.boot1.util.MailUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import retrofit2.Response;
+
+import java.util.Random;
 
 
 @Service
@@ -32,6 +36,9 @@ public class SignServiceImpl implements SignService{
 
     @Autowired
     GoogleUserInfoAPI googleUserInfoAPI;
+
+    @Autowired
+    FacebookUserInfoAPI facebookUserInfoAPI;
 
     @Transactional
     @Override
@@ -81,13 +88,42 @@ public class SignServiceImpl implements SignService{
 
         switch ( accountType ) {
             case EMAIL:
-                //email 발송해서 인증처리
+                Random rand = new Random();
+                String numStr = "";
+
+                for(int i=0;i<6;i++) {
+                    String ran = Integer.toString(rand.nextInt(10));
+
+                    numStr += ran + " ";
+                }
+
+                String fromName = "스프링";
+                String to = "dltjdgur327@naver.com";
+                String title = "[스프링] 이메일 주소 확인 요청";
+                /*String content = "해당 이메일 주소가 고객님 소유임을 확인하려면, 아래의 코드를 확인 페이지에 입력하십시오.\n" +
+                        numStr +
+                        "해당 코드는 이메일 발송 3시간 후 만료됩니다.";*/
+
+                //String content = new StringBuffer().append("<h1> 메일인증 </h1>").append("<a href='http://localhost:80/v1/sign/test'>email 인증확인</a>").toString();
+
+                String content = "<h2> 메일인증 </h2><a href='http://localhost:80/v1/sign/test'>email 인증확인2</a>";
+
+                MailUtil mailUtil = new MailUtil();
+                mailUtil.send(fromName, to, title, content);
+
+                //메일인증 완료시 user정보 저장
 
                 return null;
+
             case GOOGLE:
+
                 String credential = param.getCredential();
 
                 Response<GoogleOAuth> response = googleOAuthAPI.getToken(GoogleOAuthAPI.TOKEN_STATIC_FILED_MAP, credential).execute();
+
+                if(response.body().getAccessToken().isEmpty())
+                    throw new NullPointerException();
+
                 GoogleUserInfo googleUserInfo = googleUserInfoAPI.userInfo( "Bearer "+response.body().getAccessToken()).execute().body();
 
                 if(googleUserInfo == null)
@@ -142,7 +178,21 @@ public class SignServiceImpl implements SignService{
                 return kakaoUser;
 
             case FACEBOOK:
-                throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
+
+                Response<FacebookUserInfo> facebookUserInfoResponse = facebookUserInfoAPI.userInfoByToken("EAAErCchzFG4BAPRNagm9sSsLwBtPZACvYEq3AnSXy3zkN91WG5V3iQ3eHpnbeeBYwnmBpNdntsk5m4xVraXj2W3OR5R35oI2SVaFYwFllUzL0h2NzlReIByZB9UKlsa30UHFyirWhcBgl4BNJgQADiNOEKcA2sI4kxJ1v7n6Os8HxxVwLi0uTcrTUDnSUZD", "id,name,email").execute();
+
+                User facebookUser = new User();
+                facebookUser.setName(facebookUserInfoResponse.body().getName());
+
+                userDAO.insertUser(facebookUser);
+
+                UserAuth facebookAuth = new UserAuth();
+                facebookAuth.setUserIdx(facebookUser.getIdx());
+                facebookAuth.setIdentification(facebookUserInfoResponse.body().getId());
+
+                userAuthDAO.insertUserAuth(facebookAuth);
+
+                return facebookUser;
         }
 
         throw new BadRequestException(ErrorCode.UNKNOWN);
