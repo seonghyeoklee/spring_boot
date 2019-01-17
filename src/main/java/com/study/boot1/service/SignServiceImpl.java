@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import retrofit2.Response;
 
+import java.io.IOException;
 import java.util.Random;
 
 
@@ -106,7 +107,7 @@ public class SignServiceImpl implements SignService{
 
                 //String content = new StringBuffer().append("<h1> 메일인증 </h1>").append("<a href='http://localhost:80/v1/sign/test'>email 인증확인</a>").toString();
 
-                String content = "<h2> 메일인증 </h2><a href='http://localhost:80/v1/sign/test'>email 인증확인2</a>";
+                String content = "<h2> 메일인증 </h2><a href='http://localhost:80/v1/sign/emailAuth'>email 인증확인</a>";
 
                 MailUtil mailUtil = new MailUtil();
                 mailUtil.send(fromName, to, title, content);
@@ -119,15 +120,7 @@ public class SignServiceImpl implements SignService{
 
                 String credential = param.getCredential();
 
-                Response<GoogleOAuth> response = googleOAuthAPI.getToken(GoogleOAuthAPI.TOKEN_STATIC_FILED_MAP, credential).execute();
-
-                if(response.body().getAccessToken().isEmpty())
-                    throw new NullPointerException();
-
-                GoogleUserInfo googleUserInfo = googleUserInfoAPI.userInfo( "Bearer "+response.body().getAccessToken()).execute().body();
-
-                if(googleUserInfo == null)
-                    throw new NullPointerException();
+                GoogleUserInfo googleUserInfo = getGoogleUserInfo(credential);
 
                 System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(googleUserInfo));
 
@@ -139,7 +132,7 @@ public class SignServiceImpl implements SignService{
                 UserAuth googleAuth = new UserAuth();
                 googleAuth.setUserIdx(googleUser.getIdx());
                 googleAuth.setIdentification(googleUserInfo.getSub());
-                googleAuth.setCredential(response.body().getAccessToken());
+                googleAuth.setCredential(googleUserInfo.getAccessToken());
                 googleAuth.setType(AccountType.GOOGLE.intValue());
 
                 userAuthDAO.insertUserAuth(googleAuth);
@@ -178,17 +171,19 @@ public class SignServiceImpl implements SignService{
                 return kakaoUser;
 
             case FACEBOOK:
+                String facebookAccessToken = "EAAErCchzFG4BAPRNagm9sSsLwBtPZACvYEq3AnSXy3zkN91WG5V3iQ3eHpnbeeBYwnmBpNdntsk5m4xVraXj2W3OR5R35oI2SVaFYwFllUzL0h2NzlReIByZB9UKlsa30UHFyirWhcBgl4BNJgQADiNOEKcA2sI4kxJ1v7n6Os8HxxVwLi0uTcrTUDnSUZD";
+                String fields = "id,name";
 
-                Response<FacebookUserInfo> facebookUserInfoResponse = facebookUserInfoAPI.userInfoByToken("EAAErCchzFG4BAPRNagm9sSsLwBtPZACvYEq3AnSXy3zkN91WG5V3iQ3eHpnbeeBYwnmBpNdntsk5m4xVraXj2W3OR5R35oI2SVaFYwFllUzL0h2NzlReIByZB9UKlsa30UHFyirWhcBgl4BNJgQADiNOEKcA2sI4kxJ1v7n6Os8HxxVwLi0uTcrTUDnSUZD", "id,name,email").execute();
+                FacebookUserInfo facebookUserInfo = getFacebookUserInfo(facebookAccessToken, fields);
 
                 User facebookUser = new User();
-                facebookUser.setName(facebookUserInfoResponse.body().getName());
+                facebookUser.setName(facebookUserInfo.getName());
 
                 userDAO.insertUser(facebookUser);
 
                 UserAuth facebookAuth = new UserAuth();
                 facebookAuth.setUserIdx(facebookUser.getIdx());
-                facebookAuth.setIdentification(facebookUserInfoResponse.body().getId());
+                facebookAuth.setIdentification(facebookUserInfo.getId());
 
                 userAuthDAO.insertUserAuth(facebookAuth);
 
@@ -198,8 +193,21 @@ public class SignServiceImpl implements SignService{
         throw new BadRequestException(ErrorCode.UNKNOWN);
     }
 
-    private GoogleUserInfo getGoogleUserInfo(String accessToken) {
-        return null;
+    private GoogleUserInfo getGoogleUserInfo(String credential) throws IOException {
+
+        Response<GoogleOAuth> response = googleOAuthAPI.getToken(GoogleOAuthAPI.TOKEN_STATIC_FILED_MAP, credential).execute();
+
+        if(response.body().getAccessToken().isEmpty())
+            throw new NullPointerException();
+
+        GoogleUserInfo googleUserInfo = googleUserInfoAPI.userInfo( "Bearer "+response.body().getAccessToken()).execute().body();
+
+        if(googleUserInfo == null)
+            throw new NullPointerException();
+
+        googleUserInfo.setAccessToken(response.body().getAccessToken());
+
+        return googleUserInfo;
     }
 
     private KakaoUserInfo getKakaoUserInfo(String accessToken) {
@@ -223,7 +231,8 @@ public class SignServiceImpl implements SignService{
         throw new RuntimeException();
     }
 
-    private FacebookUserInfo getFacebookUserInfo(String accessToken) {
-        return null;
+    private FacebookUserInfo getFacebookUserInfo(String facebookAccessToken, String fields) throws IOException {
+
+        return facebookUserInfoAPI.userInfoByToken(facebookAccessToken, fields).execute().body();
     }
 }

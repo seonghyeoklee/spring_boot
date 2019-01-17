@@ -20,4 +20,6 @@ public class GoogleUserInfo {
 
     private String gender;
     private String locale;
+
+    private String accessToken;
 }

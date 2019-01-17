@@ -81,5 +81,11 @@ public class SignContoller {
         return map;
     }
 
+    @RequestMapping("/emailAuth")
+    public Object emailAuth(){
+        System.out.println("emailAuth");
+
+        return null;
+    }
 
 }
