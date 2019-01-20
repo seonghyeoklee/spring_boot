@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.boot1.dao.ReplyDAO">
+
+    <resultMap id="replyResultMap" type="Reply">
+        <id column="idx" />
+        <result column="post_idx"/>
+        <result column="content" />
+        <result column="state" />
+        <result column="created_at" />
+        <result column="updated_at" />
+        <result column="like_count" />
+        <association property="user" column="user_idx" javaType="User">
+            <id column="user_idx" property="idx" />
+            <id column="user_name" property="name" />
+        </association>
+    </resultMap>
+
+    <select id="selectReplyList" resultMap="replyResultMap">
+        select
+        pr.`idx`,
+        pr.`post_idx`,
+        pr.`content`,
+        pr.`state`,
+        pr.`created_at`,
+        pr.`updated_at`,
+
+        u.`idx` as `user_idx`,
+        u.`name` as `user_name`,
+
+        prl.like_count
+        from `post_reply` pr
+        join `user` u on pr.`author_idx` = u.`idx`
+        left outer join (
+        select `post_reply_idx`, count(*) as `like_count`
+        from `post_reply_like`
+        group by `post_reply_idx`
+        ) prl on pr.`idx` = prl.`post_reply_idx`
+        <choose>
+            <otherwise>
+                order by pr.`created_at` desc
+            </otherwise>
+        </choose>
+        limit #{offset}, #{count}
+    </select>
+
+    <insert id="insertReply" keyProperty="idx" useGeneratedKeys="true">
+        insert into `post_reply`(`post_idx`, `author_idx`, `content`)
+        values(#{postIdx}, #{user.idx}, #{content})
+    </insert>
+
+    <delete id="deleteReply">
+        delete from `post_reply` where `idx` = #{replyIdx} and `author_idx` = #{authorIdx}
+    </delete>
+
+    <insert id="insertReplyLike">
+        insert into `post_reply_like`(`post_reply_idx`, `user_idx`)
+        values(#{replyIdx}, #{userIdx})
+    </insert>
+
+    <delete id="deleteReplyLike">
+        delete from `post_reply_like`
+        where `post_reply_idx` = #{replyIdx}
+          and `user_idx`= #{userIdx}
+    </delete>
+
+</mapper>
