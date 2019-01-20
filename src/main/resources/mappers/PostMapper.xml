@@ -58,7 +58,7 @@
     <delete id="deletePost">
         delete from post
         where idx = #{idx}
-        and author_idx = #{user.idx}
+        and author_idx = #{authorIdx}
     </delete>
 
     <insert id="insertPostLike">
