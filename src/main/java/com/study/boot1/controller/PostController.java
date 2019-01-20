@@ -19,7 +19,7 @@ public class PostController {
 
     @GetMapping("/list")
     public Object listGET(
-            @RequestParam(value="offset", required = false) Integer offset,
+            @RequestParam(value="offset", required = false) Long offset,
             @RequestParam(value="count", required = false) Integer count){
 
         if(offset ==null){

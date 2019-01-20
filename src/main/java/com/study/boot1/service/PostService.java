@@ -3,7 +3,7 @@ package com.study.boot1.service;
 import com.study.boot1.model.Post;
 
 public interface PostService {
-    Object getPostList(Integer offset, Integer count);
+    Object getPostList(Long offset, Integer count);
 
     Object createPost(Post post);
 

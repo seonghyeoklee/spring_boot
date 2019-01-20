@@ -14,7 +14,7 @@ public interface PostDAO {
 
     int updatePost(Post post);
 
-    int deletePost(@Param("postIdx") long postIdx, @Param("userIdx") int userIdx);
+    int deletePost(@Param("postIdx") long postIdx, @Param("authorIdx") int authorIdx);
 
     int insertPostLike(@Param("postIdx") long postIdx, @Param("userIdx") int userIdx);
 

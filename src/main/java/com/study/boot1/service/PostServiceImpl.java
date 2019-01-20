@@ -20,7 +20,7 @@ public class PostServiceImpl implements PostService{
     PostDAO postDAO;
 
     @Override
-    public Object getPostList(Integer offset, Integer count) {
+    public Object getPostList(Long offset, Integer count) {
         offset  = Math.max(offset, 0);
         count = Math.max(count, 0);
 
