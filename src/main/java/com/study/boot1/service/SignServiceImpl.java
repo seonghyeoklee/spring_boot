@@ -107,7 +107,7 @@ public class SignServiceImpl implements SignService{
 
                 //String content = new StringBuffer().append("<h1> 메일인증 </h1>").append("<a href='http://localhost:80/v1/sign/test'>email 인증확인</a>").toString();
 
-                String content = "<h2> 메일인증 </h2><a href='http://localhost:80/v1/sign/emailAuth'>email 인증확인</a>";
+                String content = "<h2> 메일인증 </h2><a href='http://localhost:8090/v1/sign/emailAuth'>email 인증확인</a>";
 
                 MailUtil mailUtil = new MailUtil();
                 mailUtil.send(fromName, to, title, content);
