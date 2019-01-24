@@ -24,7 +24,7 @@ public class PostServiceImpl implements PostService{
         offset  = Math.max(offset, 0);
         count = Math.max(count, 0);
 
-        if(count > Constant.POST_LIST_MAX_COUNT){
+        if(count > Constant.POST_LIST_DEFAULT_COUNT){
             throw new InternalServerErrorException(ErrorCode.EXCEED_POST_LIST_MAX_COUNT);
         }
 

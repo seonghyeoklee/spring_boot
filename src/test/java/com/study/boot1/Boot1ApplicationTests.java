@@ -20,8 +20,6 @@ import retrofit2.Response;
 
 import java.util.Base64;
 import java.util.Locale;
-import java.util.Random;
-import java.util.UUID;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -54,7 +52,7 @@ public class Boot1ApplicationTests {
 
     @Test
     public void sendMail() {
-        new MailUtil().send("hahaha", "dltjdgur327@naver.com", "테스트" ,"테스트입니다.");
+        new MailUtil().send("hahaha", "woody.jwk@kakaomobility.com", "테스트" ,"테스트입니다.");
     }
 
     @Test
@@ -94,29 +92,6 @@ public class Boot1ApplicationTests {
         GoogleUserInfo googleUserInfo = googleUserInfoAPI.userInfo(response.body().getTokenType()+" "+response.body().getAccessToken()).execute().body();
 
         System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(googleUserInfo));
-    }
-
-    @Test
-    public void rand(){
-        Random rand = new Random();
-        String numStr = ""; //난수가 저장될 변수
-
-        for(int i=0;i<6;i++) {
-
-            //0~9 까지 난수 생성
-            String ran = Integer.toString(rand.nextInt(10));
-
-            numStr += ran;
-
-        }
-
-        System.out.println(numStr);
-    }
-
-    @Test
-    public void string(){
-        String str = new StringBuffer().append("<h1> 메일인증 </h1>").append("<a href='http://localhost:80/v1/sign/test'>email 인증확인</a>").toString();
-        System.out.println(str);
     }
 
 }
