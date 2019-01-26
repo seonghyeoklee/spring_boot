@@ -39,31 +39,31 @@ public class Boot1ApplicationTests {
     GoogleUserInfoAPI googleUserInfoAPI;
 
 
-    @Test
+//    @Test
     public void getLocaleMessage() {
         String code = "test.a.b";
         System.out.println( messageSource.getMessage(code, new Object[]{"@@@"}, Locale.KOREA) );
         System.out.println( messageSource.getMessage(code, new Object[]{"@@@"}, Locale.US) );
     }
 
-    @Test
+//    @Test
     public void getProperty(){
         String url = environment.getProperty("spring.datasource.url");
         System.out.println(url);
     }
 
-    @Test
+//    @Test
     public void sendMail() {
         new MailUtil().send("hahaha", "dltjdgur327@naver.com", "테스트" ,"테스트입니다.");
     }
 
-    @Test
+//    @Test
     public void generateKey(){
         String key = KeyGenerators.string().generateKey();
         System.out.println( "key : "+key );
     }
 
-    @Test
+//    @Test
     public void cryptoAES256() {
         String key = "c263335844bd9b08";
         String password = "passwordpasswordpasswordpassword";
@@ -85,7 +85,7 @@ public class Boot1ApplicationTests {
         System.out.println( decodeString );
     }
 
-    @Test
+//    @Test
     public void googleAuthTest() throws Exception {
         String code = "4/0gBfMuWg9Lhf9XU_GK9g_KaugfVtk7fnvOjkYWuNeP_wlnv5OfQbMzzfRpCMEX36E--Z-Jur7jSIGbRIxAuP9c0";
 
@@ -96,7 +96,7 @@ public class Boot1ApplicationTests {
         System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(googleUserInfo));
     }
 
-    @Test
+//    @Test
     public void rand(){
         Random rand = new Random();
         String numStr = ""; //난수가 저장될 변수
@@ -113,10 +113,15 @@ public class Boot1ApplicationTests {
         System.out.println(numStr);
     }
 
-    @Test
+//    @Test
     public void string(){
         String str = new StringBuffer().append("<h1> 메일인증 </h1>").append("<a href='http://localhost:80/v1/sign/test'>email 인증확인</a>").toString();
         System.out.println(str);
+    }
+
+    @Test
+    public void test(){
+
     }
 
 }
