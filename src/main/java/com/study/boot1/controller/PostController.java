@@ -1,6 +1,8 @@
 package com.study.boot1.controller;
 
+import com.study.boot1.SwaggerResponseErrorCodes;
 import com.study.boot1.common.Constant;
+import com.study.boot1.common.ErrorCode;
 import com.study.boot1.model.Post;
 import com.study.boot1.model.User;
 import com.study.boot1.resolver.SessionLogin;
@@ -16,6 +18,10 @@ public class PostController {
 
     @Autowired
     PostService postService;
+
+    @SwaggerResponseErrorCodes({
+            ErrorCode.INVALID_PARAM_ACCOUNT_TYPE, ErrorCode.INVALID_QUERY_EXCEPTION
+    })
 
     @GetMapping("/list")
     public Object listGET(
