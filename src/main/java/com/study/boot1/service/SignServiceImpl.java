@@ -2,7 +2,9 @@ package com.study.boot1.service;
 
 import com.google.gson.GsonBuilder;
 import com.study.boot1.common.AccountType;
+import com.study.boot1.common.Constant;
 import com.study.boot1.common.ErrorCode;
+import com.study.boot1.dao.EmailAuthDAO;
 import com.study.boot1.dao.UserAuthDAO;
 import com.study.boot1.dao.UserDAO;
 import com.study.boot1.exception.BadRequestException;
@@ -15,10 +17,12 @@ import com.study.boot1.util.MailUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.UUID;
 
 
 @Service
@@ -40,6 +44,9 @@ public class SignServiceImpl implements SignService{
 
     @Autowired
     FacebookUserInfoAPI facebookUserInfoAPI;
+
+    @Autowired
+    EmailAuthDAO emailAuthDAO;
 
     @Transactional
     @Override
@@ -88,33 +95,59 @@ public class SignServiceImpl implements SignService{
         }
 
         switch ( accountType ) {
-            case EMAIL:
-                Random rand = new Random();
-                String numStr = "";
+            case EMAIL: {
 
-                for(int i=0;i<6;i++) {
-                    String ran = Integer.toString(rand.nextInt(10));
-
-                    numStr += ran + " ";
+                if (StringUtils.isEmpty(param.getCredential())) {
+                    throw new BadRequestException(ErrorCode.INVALID_PARAM_ACCOUNT_TYPE);
                 }
 
-                String fromName = "스프링";
-                String to = "dltjdgur327@naver.com";
-                String title = "[스프링] 이메일 주소 확인 요청";
-                /*String content = "해당 이메일 주소가 고객님 소유임을 확인하려면, 아래의 코드를 확인 페이지에 입력하십시오.\n" +
-                        numStr +
-                        "해당 코드는 이메일 발송 3시간 후 만료됩니다.";*/
+                // TODO : Check Email Regex
+                // TODO : Check Password Regex
 
-                //String content = new StringBuffer().append("<h1> 메일인증 </h1>").append("<a href='http://localhost:80/v1/sign/test'>email 인증확인</a>").toString();
+                UserSignParam queryParam = new UserSignParam();
+                queryParam.setType(AccountType.EMAIL.intValue());
+                queryParam.setIdentification(param.getIdentification());
 
-                String content = "<h2> 메일인증 </h2><a href='http://localhost:80/v1/sign/emailAuth'>email 인증확인</a>";
+                UserAuth userAuth = userAuthDAO.selectUserAuth(queryParam);
 
-                MailUtil mailUtil = new MailUtil();
-                mailUtil.send(fromName, to, title, content);
+                if (userAuth != null && userAuth.getState() == 1) {
+                    throw new BadRequestException(0, "already exists");
+                }
 
-                //메일인증 완료시 user정보 저장
+                User user = new User();
+                user.setName("nickname"); // TODO FIX
+                userDAO.insertUser(user);
 
-                return null;
+                UserAuth auth = new UserAuth();
+                auth.setType(AccountType.EMAIL.intValue());
+                auth.setUserIdx(user.getIdx());
+                auth.setIdentification(param.getIdentification());
+                auth.setCredential(param.getCredential());
+
+                userAuthDAO.insertUserAuth(auth);
+
+                int tryCount = 0;
+
+                EmailAuth emailAuth = new EmailAuth();
+                emailAuth.setUserAuthIdx(auth.getIdx());
+
+                do {
+                    emailAuth.setToken(createEmailAuthToken());
+
+                    int insertCount = emailAuthDAO.insertEmailAuth(emailAuth);
+                    if(insertCount == 1)
+                        break;
+                } while (tryCount++ < 5);
+
+                if (tryCount >= 5) {
+                    throw new BadRequestException(0, "email is not vaild");
+                }
+
+                MailUtil.send("관리자", auth.getIdentification(), "회원가입인증",
+                        "http://localhost:8081/v1/email/auth?token="+emailAuth.getToken());
+
+                return user;
+            }
 
             case GOOGLE:
 
@@ -234,5 +267,14 @@ public class SignServiceImpl implements SignService{
     private FacebookUserInfo getFacebookUserInfo(String facebookAccessToken, String fields) throws IOException {
 
         return facebookUserInfoAPI.userInfoByToken(facebookAccessToken, fields).execute().body();
+    }
+
+    private String createEmailAuthToken() {
+        String token = "";
+
+        while(token.length() < Constant.EMAIL_AUTH_TOKEN_LENGTH) {
+            token += UUID.randomUUID().toString().replaceAll("-","");
+        }
+        return token.substring(0, Constant.EMAIL_AUTH_TOKEN_LENGTH);
     }
 }

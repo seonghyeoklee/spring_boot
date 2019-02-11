@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.boot1.dao.EmailAuthDAO">
+    <insert id="insertEmailAuth" keyProperty="idx" useGeneratedKeys="true">
+        INSERT INTO `email_auth` (`user_auth_idx`, `token`)
+        VALUES (#{userAuthIdx}, #{token})
+    </insert>
+
+    <select id="selectEmailAuth" resultType="EmailAuth">
+        SELECT *
+        FROM `email_auth`
+        WHERE `token` = #{token}
+    </select>
+
+    <update id="updateEmailAuth">
+        UPDATE `email_auth`
+        SET `auth_at` = now()
+        WHERE `idx` = #{idx}
+        AND `auth_at` IS NULL
+    </update>
+</mapper>

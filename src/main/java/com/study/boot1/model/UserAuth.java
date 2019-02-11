@@ -14,6 +14,7 @@ public class UserAuth {
     private int userIdx;
     private User user;
     private int type;
+    private int state;
     private String identification;
     private String credential;
     private Date createdAt;
