@@ -13,7 +13,6 @@ public class Post {
 
     private long idx;
     private User author;
-    private String title;
     private String content;
     private int state;
     private Date createdAt;

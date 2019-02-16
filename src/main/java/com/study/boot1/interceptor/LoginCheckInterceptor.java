@@ -1,17 +1,24 @@
 package com.study.boot1.interceptor;
 
+import com.study.boot1.common.Constant;
+import com.google.gson.Gson;
+import com.study.boot1.common.Constant;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import com.study.boot1.common.Constant;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class LoginCheckInterceptor extends HandlerInterceptorAdapter {
+
+	static Gson gson = new Gson();
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)throws Exception {
@@ -19,26 +26,29 @@ public class LoginCheckInterceptor extends HandlerInterceptorAdapter {
 
 		Integer userIdx = (Integer)session.getAttribute(Constant.SESSION_KEY_LOGIN_USER_IDX);
 
-		if(userIdx == null){
-			Cookie[] cookies = request.getCookies();
-			String token = "";
+		if(userIdx == null) {
+//            if( request.getContentType().equals("application/json") ){ // json
+			response.setCharacterEncoding("UTF-8");
+			response.addHeader("Content-Type", "application/json;charset=UTF-8");
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
-			if(cookies != null){
-				for(Cookie cookie : cookies){
-					if(cookie.getName().equals("Autosign")){
-						token = cookie.getValue();
-						break;
-					}
-				}
-			}
+			Map<String, Object> result = new HashMap<>();
+			result.put("succ", false);
+			result.put("msg", HttpStatus.UNAUTHORIZED.toString());
 
-			if(token != null){
-				//token으로 userIdx 조회
-				//session에 userIdx 저장
-				//클라이언트 쿠키 삭제
-				//update 사용시간
-				//새로운 쿠키 발급
+			try{
+				response.getWriter().print(gson.toJson(request));
+			}catch(Exception e){
+				e.printStackTrace();
 			}
+//            } else { // html
+//                try{
+//                    response.sendRedirect("");
+//                }catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+			return false;
 		}
 
 		return super.preHandle(request, response, handler);

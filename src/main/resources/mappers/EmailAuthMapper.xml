@@ -20,4 +20,9 @@
         WHERE `idx` = #{idx}
         AND `auth_at` IS NULL
     </update>
+
+    <delete id="deleteUnusedEmailAuth">
+        DELETE FROM email_auth
+        WHERE created_at &lt; data_sub(now(), interval 24) and auth_at is null
+    </delete>
 </mapper>

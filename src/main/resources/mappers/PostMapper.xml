@@ -6,7 +6,6 @@
 
     <resultMap id="postResultMap" type="Post">
         <id column="idx"/>
-        <result column="title" property="title"/>
         <result column="content" property="content"/>
         <result column="state" property="state"/>
         <result column="created_at" property="createdAt"/>
@@ -22,7 +21,6 @@
     <select id="selectPostList" resultMap="postResultMap">
         select
           p.idx,
-          p.title,
           p.content,
           p.state,
           p.created_at,
@@ -42,13 +40,12 @@
     </select>
 
     <insert id="insertPost" useGeneratedKeys="true" keyProperty="idx">
-      insert into `post`(`author_idx`, `title`, `content`)
-      values(#{author.idx}, #{title}, #{content})
+      insert into `post`(`author_idx`, `content`)
+      values(#{author.idx}, #{content})
     </insert>
 
     <update id="updatePost">
 		UPDATE post SET
-			title = #{title},
 			content = #{content},
 			state = #{state},
 			updated_at = now()

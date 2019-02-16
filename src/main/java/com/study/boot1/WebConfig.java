@@ -1,5 +1,6 @@
 package com.study.boot1;
 
+
 import com.study.boot1.interceptor.LoginCheckInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -18,10 +19,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 //        registry.addInterceptor(loginCheckInterceptor)
-//                .excludePathPatterns("")
-//                .addPathPatterns("");
+//                .excludePathPatterns("/vi/sign/**")
+//                .excludePathPatterns("/vi/email/auth")
+//                .excludePathPatterns("/docs/**")
+//                .addPathPatterns("/v1/**");
     }
-
 
     @Bean
     public MessageSource messageSource() {
