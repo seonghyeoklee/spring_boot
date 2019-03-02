@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailServiceImpl implements EmailService {
+public class EmailAuthServiceImpl implements EmailAuthService {
 
     @Autowired
     EmailAuthDAO emailAuthDAO;

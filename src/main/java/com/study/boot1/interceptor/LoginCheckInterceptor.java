@@ -1,17 +1,14 @@
 package com.study.boot1.interceptor;
 
-import com.study.boot1.common.Constant;
 import com.google.gson.Gson;
 import com.study.boot1.common.Constant;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
