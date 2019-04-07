@@ -8,11 +8,11 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 public class MailUtil {
-    public boolean send(String fromName,String to,String title,String content){
+    public static boolean send(String fromName,String to,String title,String content){
         //보내는사람 정보
         String host = "smtp.daum.net";
-        String username = "";
-        String password = "";
+        String username = "tjdgur327@daum.net";
+        String password = "ghxrre1@";
 
         Properties props = new Properties();
         props.put("mail.smtps.auth", "true");

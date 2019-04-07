@@ -18,6 +18,7 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.test.context.junit4.SpringRunner;
 import retrofit2.Response;
 
+import java.net.InetAddress;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Random;
@@ -52,7 +53,7 @@ public class Boot1ApplicationTests {
         System.out.println(url);
     }
 
-//    @Test
+    @Test
     public void sendMail() {
         new MailUtil().send("hahaha", "dltjdgur327@naver.com", "테스트" ,"테스트입니다.");
     }
@@ -113,7 +114,7 @@ public class Boot1ApplicationTests {
         System.out.println(numStr);
     }
 
-//    @Test
+    @Test
     public void string(){
         String str = new StringBuffer().append("<h1> 메일인증 </h1>").append("<a href='http://localhost:80/v1/sign/test'>email 인증확인</a>").toString();
         System.out.println(str);
